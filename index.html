@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>D3 Heatmap</title>
+  <style>
+    body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        background: white;
+        color: black;
+        text-align: center; 
+        justify-content: center;
+        align-items: center;
+    }
+
+    #heatmap{
+        justify-content: center;
+    }
+
+    .cell, .value {
+    transition: opacity 0.2s ease;
+    }
+
+    .cell.dimmed, .value.dimmed {
+    filter: url(#blur-filter);
+    opacity: 0.1;
+    }
+
+    .cell.highlight {
+    opacity: 1;
+    stroke: black;
+    stroke-width: 2px;
+    font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>Attack × Defense Accuracy Heatmap</h2>
+
+  <svg id="heatmap"></svg>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <!-- Heatmap code -->
+  <script src="heatmap.js"></script>
+</body>
+</html>
