@@ -349,14 +349,19 @@ svg.selectAll("rect.cell")
     .attr("y", d => y(d.method))
     .attr("width", x.bandwidth())
     .attr("height", y.bandwidth())
-    .attr("fill", "#f2f2f2")        
+    .attr("fill", "#f2f2f2")     
     .transition()                    
     .duration(2000)                    
     .delay(d => {
     const t = (d.value - minVal) / (maxVal - minVal);  // 0~1 정규화
     return t * 2000;  // 최대 1초 delay
     })      
-    .attr("fill", d => color(d.value)); 
+    .attr("fill", d => color(d.value))
+    .on("end", function(_, i) {
+    // 모든 셀 transition 끝났을 때만 이벤트 추가
+    if (i === data.length - 1) {  
+        enableHover();  
+    }});
 
 // 숫자 표시
 svg.selectAll("text.value")
@@ -390,61 +395,30 @@ svg.append("g")
 .attr("transform", `translate(${margin.left},0)`)
 .call(yAxis);
 
-const ticks = svg.selectAll(".x-axis .tick");
-
-ticks.each(function(d) {
-  const node = d3.select(this);
-  const xPos = node.attr("transform").match(/translate\(([^,]+)/)[1];
-  
-  svg.append("rect")
-    .attr("x", +xPos + margin.left)
-    .attr("y", height - margin.bottom)
-    .attr("width", x.bandwidth())
-    .attr("height", margin.bottom)
-    .attr("fill", "transparent")
-    .style("cursor", "pointer")
-    .on("mouseover", () => highlightMaxForMethod(d))
-    .on("mouseout", resetHighlight);
-});
-
-ticks.each(function(d) {
-  const node = d3.select(this);
-  const xPos = node.attr("transform").match(/translate\(([^,]+)/)[1];
-  
-  svg.append("rect")
-    .attr("x", +xPos + margin.left)
-    .attr("y", height - margin.bottom)
-    .attr("width", x.bandwidth())
-    .attr("height", margin.bottom)
-    .attr("fill", "transparent")
-    .style("cursor", "pointer")
-    .on("mouseover", () => highlightColumn(d))
-    .on("mouseout", resetHighlight);
-});
-
   
 function highlightMaxForMethod(MethodName) {
-    const col = data.filter(d => d.method === MethodName);
+    const col = data.filter(d => d.method === MethodName && d.attack !== "No Attack");
     const maxVal = d3.max(col, d => d.value);
     svg.selectAll("rect.cell")
         .classed("highlight", d => d.method === MethodName && d.value === maxVal)
-        .classed("dimmed", d => !(d.method === MethodName));
-    svg.selectAll("text.value")
-        .classed("dimmed", d => !(d.method === MethodName));
-}
+        .classed("dimmed", d => !(d.method === MethodName) || d.attack == "No Attack");
 
-function highlightMaxForMethod(AttackName) {
-    const col = data.filter(d => d.attack === AttackName);
-    const maxVal = d3.max(col, d => d.attack);
-    svg.selectAll("rect.cell")
-        .classed("highlight", d => d.attack === AttackName && d.value === maxVal)
-        .classed("dimmed", d => !(d.attack === AttackName));
     svg.selectAll("text.value")
-        .classed("dimmed", d => !(d.attack === AttackName));
+        .classed("dimmed", d => !(d.method === MethodName) || d.attack == "No Attack");
 }
 
 function resetHighlight() {
     svg.selectAll(".highlight, .dimmed")
         .classed("highlight", false)
         .classed("dimmed", false);
+}
+
+function enableHover() {
+    svg.selectAll("rect.cell")
+        .on("mouseover", function(event, d) {
+            highlightMaxForMethod(d.method);
+        })
+        .on("mouseout", function(event, d) {
+            resetHighlight();
+        });
 }
