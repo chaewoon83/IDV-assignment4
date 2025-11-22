@@ -407,6 +407,15 @@ function highlightMaxForMethod(MethodName) {
         .classed("dimmed", d => !(d.method === MethodName) || d.attack == "No Attack");
 }
 
+function highlightMaxForMethodAttack(AttackName, MethodName) {
+    svg.selectAll("rect.cell")
+        .classed("highlight", d => d.method === MethodName && d.attack === AttackName)
+        .classed("dimmed", d => !(d.method === MethodName || d.attack === AttackName));
+
+    svg.selectAll("text.value")
+        .classed("dimmed", d => !(d.method === MethodName || d.attack === AttackName));
+}
+
 function resetHighlight() {
     svg.selectAll(".highlight, .dimmed")
         .classed("highlight", false)
@@ -416,7 +425,7 @@ function resetHighlight() {
 function enableHover() {
     svg.selectAll("rect.cell")
         .on("mouseover", function(event, d) {
-            highlightMaxForMethod(d.method);
+            highlightMaxForMethodAttack(d.attack, d.method);
         })
         .on("mouseout", function(event, d) {
             resetHighlight();
